@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRADINGVUALT // Luxe Crypto Trading Journal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            300: '#FCE762',
+                            400: '#F3C623',
+                            500: '#D4AF37',
+                            600: '#B8860B',
+                            700: '#996515',
+                        },
+                        binance: {
+                            black: '#0B0E11',
+                            card: '#181A20',
+                            cardHover: '#1E2329',
+                            border: '#2B313A',
+                            yellow: '#F0B90B',
+                            green: '#0ECB81',
+                            red: '#F6465D',
+                            text: '#EAECEF',
+                            muted: '#848E9C'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #0B0E11;
+            color: #EAECEF;
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom Gold Glassmorphism Effects */
+        .gold-glass {
+            background: rgba(24, 26, 32, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+        }
+        .gold-border-glow {
+            border: 1px solid rgba(240, 185, 11, 0.3);
+            box-shadow: 0 0 15px rgba(240, 185, 11, 0.08);
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF099 0%, #F0B90B 50%, #B8860B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-btn {
+            background: linear-gradient(135deg, #F0B90B 0%, #D4AF37 100%);
+            color: #0B0E11;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+        .gold-btn:hover {
+            background: linear-gradient(135deg, #FCD535 0%, #F0B90B 100%);
+            box-shadow: 0 0 15px rgba(240, 185, 11, 0.4);
+            transform: translateY(-1px);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0E11;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2B313A;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+        /* Range slider styling */
+        input[type=range] {
+            accent-color: #F0B90B;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row overflow-x-hidden antialiased">
+
+    <!-- Mobile Navigation Bar -->
+    <div class="md:hidden flex items-center justify-between p-4 bg-binance-card border-b border-binance-border sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-binance-yellow to-gold-600 flex items-center justify-center text-binance-black font-bold">
+                <i class="fa-solid font-mono font-black">A</i>
+            </div>
+            <span class="font-bold tracking-wider text-lg gold-gradient-text">AUREUS</span>
+        </div>
+        <button id="mobileMenuBtn" class="text-binance-text p-2 rounded-lg hover:bg-binance-border text-xl focus:outline-none">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-binance-card border-r border-binance-border transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between md:static md:min-h-screen">
+        <div>
+            <!-- Logo Header -->
+            <div class="p-6 hidden md:flex items-center space-x-3 border-b border-binance-border">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-binance-yellow to-gold-600 flex items-center justify-center text-binance-black font-extrabold text-xl shadow-lg shadow-gold-500/20">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl tracking-wider gold-gradient-text">AUREUS</h1>
+                    <p class="text-[10px] text-binance-muted uppercase tracking-widest font-mono">Crypto Trading Journal</p>
+                </div>
+            </div>
+
+            <!-- Menu Navigation Links -->
+            <nav class="p-4 space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all text-binance-yellow bg-binance-border/50 border-l-4 border-binance-yellow">
+                    <i class="fa-solid fa-chart-pie w-5"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('journal')" id="nav-journal" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-binance-muted hover:text-binance-text hover:bg-binance-border/30 transition-all">
+                    <i class="fa-solid fa-pen-to-square w-5"></i>
+                    <span>Trade Journal</span>
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-binance-muted hover:text-binance-text hover:bg-binance-border/30 transition-all">
+                    <i class="fa-solid fa-clock-rotate-left w-5"></i>
+                    <span>Trade History</span>
+                </button>
+                <button onclick="switchTab('learning')" id="nav-learning" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-binance-muted hover:text-binance-text hover:bg-binance-border/30 transition-all">
+                    <i class="fa-solid fa-graduation-cap w-5"></i>
+                    <span>Learning Materials</span>
+                </button>
+                <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-binance-muted hover:text-binance-text hover:bg-binance-border/30 transition-all">
+                    <i class="fa-solid fa-sliders w-5"></i>
+                    <span>Account Setting</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Sidebar User Footer & Live Market Pulse -->
+        <div class="p-4 border-t border-binance-border space-y-3">
+            <div class="bg-binance-black p-3 rounded-xl border border-binance-border/60 text-xs flex justify-between items-center">
+                <span class="flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-binance-green animate-pulse"></span>
+                    <span class="text-binance-muted">System Status:</span>
+                </span>
+                <span class="text-binance-green font-mono font-medium">Synced</span>
+            </div>
+            
+            <div id="sidebarUserBadge" class="flex items-center space-x-3 p-2 rounded-xl bg-binance-cardHover border border-binance-border">
+                <img id="sidebarAvatar" src="https://placehold.co/100x100/181A20/F0B90B?text=VIP" class="w-9 h-9 rounded-full border border-binance-yellow object-cover" alt="User Avatar">
+                <div class="overflow-hidden">
+                    <p id="sidebarUsername" class="text-sm font-semibold text-binance-text truncate">Pro Trader</p>
+                    <p id="sidebarEmail" class="text-[11px] text-binance-muted truncate">google.user@crypto.com</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content View Container -->
+    <main class="flex-1 flex flex-col min-w-0 bg-binance-black">
+        
+        <!-- Top App Bar -->
+        <header class="h-16 border-b border-binance-border bg-binance-card/50 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
+            <div class="flex items-center space-x-2">
+                <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-binance-yellow/10 text-binance-yellow border border-binance-yellow/20 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-[10px]"></i> PRO JOURNAL v2.5
+                </span>
+            </div>
+
+            <!-- Top Header Right Elements (Google Auth Simulator) -->
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleAuthModal()" class="flex items-center space-x-2 bg-binance-card hover:bg-binance-border px-3 py-1.5 rounded-lg border border-binance-border text-xs transition">
+                    <i class="fa-brands fa-google text-binance-yellow"></i>
+                    <span id="headerAuthStatus" class="font-medium text-binance-text">Signed In with Google</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Main Views -->
+        <div class="p-4 md:p-8 space-y-8 flex-1 max-w-7xl w-full mx-auto">
+
+            <!-- 1. DASHBOARD TAB -->
+            <section id="tab-dashboard" class="space-y-6">
+                <!-- Top Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Starting Capital Card -->
+                    <div class="gold-glass rounded-2xl p-5 border border-binance-border hover:border-binance-yellow/50 transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs text-binance-muted font-medium uppercase tracking-wider">Account Amount</span>
+                            <button onclick="openEditCapitalModal()" class="text-binance-yellow hover:text-white text-xs bg-binance-border/50 px-2 py-1 rounded">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                        </div>
+                        <div id="dashStartingCapital" class="text-2xl font-bold font-mono text-binance-text">$10,000.00</div>
+                        <div class="text-[11px] text-binance-muted mt-1">Base Account Balance</div>
+                    </div>
+
+                    <!-- Current Equity Balance Card -->
+                    <div class="gold-glass rounded-2xl p-5 border border-binance-border hover:border-binance-yellow/50 transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs text-binance-muted font-medium uppercase tracking-wider">Current Balance</span>
+                            <span class="w-2 h-2 rounded-full bg-binance-green"></span>
+                        </div>
+                        <div id="dashCurrentBalance" class="text-2xl font-bold font-mono text-binance-text">$10,000.00</div>
+                        <div id="dashBalanceChange" class="text-[11px] font-mono mt-1 text-binance-green">+0.00% Net Profit</div>
+                    </div>
+
+                    <!-- Total P&L Card -->
+                    <div class="gold-glass rounded-2xl p-5 border border-binance-border hover:border-binance-yellow/50 transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs text-binance-muted font-medium uppercase tracking-wider">Total P&L</span>
+                            <i class="fa-solid fa-chart-line text-xs text-binance-yellow"></i>
+                        </div>
+                        <div id="dashTotalPnL" class="text-2xl font-bold font-mono text-binance-green">$0.00</div>
+                        <div id="dashTotalPnLPercent" class="text-[11px] font-mono mt-1 text-binance-green">(+0.00%)</div>
+                    </div>
+
+                    <!-- Daily & Weekly P&L Card -->
+                    <div class="gold-glass rounded-2xl p-5 border border-binance-border hover:border-binance-yellow/50 transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs text-binance-muted font-medium uppercase tracking-wider">Daily / Weekly</span>
+                            <i class="fa-solid fa-calendar-day text-xs text-binance-muted"></i>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-xs text-binance-muted">Daily P&L:</span>
+                            <span id="dashDailyPnL" class="text-sm font-bold font-mono text-binance-green">$0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-1.5 border-t border-binance-border/50 pt-1.5">
+                            <span class="text-xs text-binance-muted">Weekly P&L:</span>
+                            <span id="dashWeeklyPnL" class="text-sm font-bold font-mono text-binance-green">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equity Curve Graph and Trading Rules Checklist Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Equity Performance Graph -->
+                    <div class="lg:col-span-2 bg-binance-card p-6 rounded-2xl border border-binance-border space-y-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-base font-semibold text-binance-text flex items-center gap-2">
+                                    <i class="fa-solid fa-arrow-trend-up text-binance-yellow"></i> Equity Growth Performance & P&L Graph
+                                </h3>
+                                <p class="text-xs text-binance-muted">Real-time dynamic balance updates based on closed trades</p>
+                            </div>
+                            <span class="text-xs font-mono text-binance-yellow bg-binance-yellow/10 px-3 py-1 rounded-full border border-binance-yellow/20">LIVE DATA</span>
+                        </div>
+                        <div class="w-full h-72">
+                            <canvas id="equityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Trading Rules Checklist -->
+                    <div class="bg-binance-card p-6 rounded-2xl border border-binance-border flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-base font-semibold text-binance-text flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-binance-yellow"></i> Trading Rules Checklist
+                                </h3>
+                                <span id="rulesCompletedCount" class="text-xs font-mono bg-binance-border px-2 py-1 rounded text-binance-yellow">0/0</span>
+                            </div>
+                            <!-- Add Rule Form -->
+                            <form id="addRuleForm" onsubmit="addTradingRule(event)" class="flex gap-2 mb-4">
+                                <input type="text" id="newRuleInput" placeholder="Add discipline rule (e.g. Max 2% risk)..." class="flex-1 bg-binance-black border border-binance-border px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-binance-yellow text-binance-text">
+                                <button type="submit" class="gold-btn px-3 py-2 rounded-lg text-xs font-bold">+</button>
+                            </form>
+                            <!-- Rules List -->
+                            <div id="rulesList" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                                <!-- Dynamic Rules Items -->
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-binance-border text-[11px] text-binance-muted italic">
+                            * Discipline precedes profit. Always check rules before taking position.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Integrated About & Creator Support Card -->
+                <div class="gold-glass rounded-2xl p-6 border border-binance-yellow/30 relative overflow-hidden shadow-2xl">
+                    <div class="absolute -right-10 -bottom-10 opacity-10 text-binance-yellow text-9xl font-black pointer-events-none">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div class="space-y-2 max-w-2xl">
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-binance-yellow text-binance-black font-extrabold text-[10px] uppercase px-2 py-0.5 rounded font-mono">100% FREE & NO SUBSCRIPTION</span>
+                                <span class="text-xs text-binance-muted">• Zero Hidden Fees</span>
+                            </div>
+                            <h3 class="text-xl font-bold gold-gradient-text">About AUREUS Journal & Support Creator</h3>
+                            <p class="text-xs text-binance-muted leading-relaxed">
+                                AUREUS is built for high-performance cryptocurrency traders who demand elegance, precision, and complete data privacy. If this trading journal helps you stay disciplined and profitable, consider supporting future development with a tip!
+                            </p>
+                        </div>
+                        <div class="w-full md:w-auto bg-binance-black/80 border border-binance-border p-4 rounded-xl space-y-2 min-w-[280px]">
+                            <span class="text-[11px] font-medium text-binance-muted uppercase tracking-wider block">MEXC Account UID Donation</span>
+                            <div class="flex items-center justify-between bg-binance-card p-2.5 rounded-lg border border-binance-yellow/40">
+                                <div class="flex items-center space-x-2 font-mono text-sm font-bold text-binance-yellow">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    <span id="mexcUid">80122749</span>
+                                </div>
+                                <button onclick="copyMexcUID()" class="gold-btn px-3 py-1 rounded text-xs flex items-center gap-1">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span id="copyBtnText">Copy</span>
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-binance-muted text-center">Thank you for supporting free crypto trading tools!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. TRADE JOURNAL TAB -->
+            <section id="tab-journal" class="hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-binance-text">New Trade Entry Log</h2>
+                        <p class="text-xs text-binance-muted">Log position parameters, risk details, strategy rationale, and emotional state.</p>
+                    </div>
+                </div>
+
+                <form id="tradeForm" onsubmit="saveTradeLog(event)" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left Column: Trade Entry Metrics -->
+                    <div class="lg:col-span-2 bg-binance-card p-6 rounded-2xl border border-binance-border space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <!-- Pair Input -->
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1.5">Trading Pair</label>
+                                <input type="text" id="tradePair" required placeholder="BTC/USDT" class="w-full bg-binance-black border border-binance-border px-3.5 py-2.5 rounded-xl text-sm font-mono focus:border-binance-yellow focus:outline-none uppercase text-binance-text">
+                            </div>
+
+                            <!-- Position Type -->
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1.5">Direction</label>
+                                <select id="tradeDirection" onchange="calculateLivePnL()" class="w-full bg-binance-black border border-binance-border px-3.5 py-2.5 rounded-xl text-sm font-mono focus:border-binance-yellow focus:outline-none text-binance-text">
+                                    <option value="LONG">LONG 📈</option>
+                                    <option value="SHORT">SHORT 📉</option>
+                                </select>
+                            </div>
+
+                            <!-- Margin Amount -->
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1.5">Margin / Amount ($)</label>
+                                <input type="number" id="tradeMargin" step="0.01" required placeholder="100.00" oninput="calculateLivePnL()" class="w-full bg-binance-black border border-binance-border px-3.5 py-2.5 rounded-xl text-sm font-mono focus:border-binance-yellow focus:outline-none text-binance-text">
+                            </div>
+
+                            <!-- Entry Price -->
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1.5">Entry Price ($)</label>
+                                <input type="number" id="tradeEntry" step="any" required placeholder="65000" oninput="calculateLivePnL()" class="w-full bg-binance-black border border-binance-border px-3.5 py-2.5 rounded-xl text-sm font-mono focus:border-binance-yellow focus:outline-none text-binance-text">
+                            </div>
+
+                            <!-- Take Profit Price -->
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1.5">Take Profit Target ($)</label>
+                                <input type="number" id="tradeTP" step="any" required placeholder="68000" oninput="calculateLivePnL()" class="w-full bg-binance-black border border-binance-border px-3.5 py-2.5 rounded-xl text-sm font-mono focus:border-binance-yellow focus:outline-none text-binance-text">
+                            </div>
+
+                            <!-- Stop Loss Price -->
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1.5">Stop Loss / Exit ($)</label>
+                                <input type="number" id="tradeSL" step="any" required placeholder="63500" oninput="calculateLivePnL()" class="w-full bg-binance-black border border-binance-border px-3.5 py-2.5 rounded-xl text-sm font-mono focus:border-binance-yellow focus:outline-none text-binance-text">
+                            </div>
+                        </div>
+
+                        <!-- Leverage Selector (1x to 100x) -->
+                        <div class="bg-binance-black p-4 rounded-xl border border-binance-border space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-medium text-binance-muted">Leverage Multiplier (1x to 100x)</span>
+                                <span id="leverageDisplay" class="font-mono text-base font-bold text-binance-yellow">20x</span>
+                            </div>
+                            <input type="range" id="tradeLeverage" min="1" max="100" value="20" oninput="updateLeverage(this.value)" class="w-full h-2 bg-binance-border rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between gap-2">
+                                <button type="button" onclick="updateLeverage(1)" class="flex-1 py-1 bg-binance-card hover:bg-binance-border border border-binance-border rounded text-xs font-mono text-binance-muted">1x</button>
+                                <button type="button" onclick="updateLeverage(10)" class="flex-1 py-1 bg-binance-card hover:bg-binance-border border border-binance-border rounded text-xs font-mono text-binance-muted">10x</button>
+                                <button type="button" onclick="updateLeverage(25)" class="flex-1 py-1 bg-binance-card hover:bg-binance-border border border-binance-border rounded text-xs font-mono text-binance-muted">25x</button>
+                                <button type="button" onclick="updateLeverage(50)" class="flex-1 py-1 bg-binance-card hover:bg-binance-border border border-binance-border rounded text-xs font-mono text-binance-muted">50x</button>
+                                <button type="button" onclick="updateLeverage(100)" class="flex-1 py-1 bg-binance-card hover:bg-binance-border border border-binance-border rounded text-xs font-mono text-binance-muted">100x</button>
+                            </div>
+                        </div>
+
+                        <!-- Expected Risk / Reward Calculation Card -->
+                        <div class="grid grid-cols-2 gap-4 bg-binance-black/60 p-4 rounded-xl border border-binance-border/80">
+                            <div>
+                                <span class="text-[11px] text-binance-muted uppercase">Estimated TP Target Return</span>
+                                <div id="calcTpReturn" class="text-lg font-bold font-mono text-binance-green">+$0.00 (+0.00% ROE)</div>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-binance-muted uppercase">Estimated SL Max Loss</span>
+                                <div id="calcSlReturn" class="text-lg font-bold font-mono text-binance-red">-$0.00 (-0.00% ROE)</div>
+                            </div>
+                        </div>
+
+                        <!-- Rationale / Notes -->
+                        <div>
+                            <label class="block text-xs font-medium text-binance-muted mb-1.5">Notes / Strategy</label>
+                            <textarea id="tradeNotes" rows="3" placeholder="Why are you taking this trade? What market condition or strategy confluence is present?" class="w-full bg-binance-black border border-binance-border p-3 rounded-xl text-xs focus:border-binance-yellow focus:outline-none text-binance-text"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Psychology, Checklist, Screenshot -->
+                    <div class="bg-binance-card p-6 rounded-2xl border border-binance-border space-y-5 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <!-- Psychology State Dropdown -->
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1.5">Trading Psychology</label>
+                                <select id="tradePsychology" class="w-full bg-binance-black border border-binance-border px-3.5 py-2.5 rounded-xl text-xs font-medium focus:border-binance-yellow focus:outline-none text-binance-text">
+                                    <option value="Disciplined">🧠 Disciplined & Calm</option>
+                                    <option value="Followed Plan">📋 Followed Plan</option>
+                                    <option value="Patient">⏳ Patient Wait for Retest</option>
+                                    <option value="FOMO">🔥 FOMO / Chasing Move</option>
+                                    <option value="Revenge Trade">😡 Revenge Trading</option>
+                                    <option value="Greedy">🤑 Greedy / Over-leveraged</option>
+                                    <option value="Fearful">😨 Fearful / Hesitant</option>
+                                    <option value="Early Exit">⚡ Early Exit Anxiety</option>
+                                </select>
+                            </div>
+
+                            <!-- Strategy Confluence Checklist -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="block text-xs font-medium text-binance-muted">Editable Strategy Checklist(optional)</label>
+                                </div>
+                                <div id="strategyChecklistContainer" class="space-y-2 bg-binance-black p-3 rounded-xl border border-binance-border max-h-40 overflow-y-auto">
+                                    <label class="flex items-center space-x-2 text-xs text-binance-text cursor-pointer">
+                                        <input type="checkbox" value="Trendline / Key Level Break" class="strategy-check rounded bg-binance-border text-binance-yellow focus:ring-0" checked>
+                                        <span>Trendline / Key Level Break</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-xs text-binance-text cursor-pointer">
+                                        <input type="checkbox" value="RSI / MACD Divergence" class="strategy-check rounded bg-binance-border text-binance-yellow focus:ring-0">
+                                        <span>RSI / MACD Divergence</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-xs text-binance-text cursor-pointer">
+                                        <input type="checkbox" value="High Volume Confirmation" class="strategy-check rounded bg-binance-border text-binance-yellow focus:ring-0">
+                                        <span>High Volume Confirmation</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-xs text-binance-text cursor-pointer">
+                                        <input type="checkbox" value="200 EMA Support/Resist" class="strategy-check rounded bg-binance-border text-binance-yellow focus:ring-0">
+                                        <span>200 EMA Support/Resist</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Screenshot Proof Upload & Display -->
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1.5">Upload & Display Image</label>
+                                <input type="file" id="tradeImageInput" accept="image/*" onchange="previewTradeImage(event)" class="hidden">
+                                <div onclick="document.getElementById('tradeImageInput').click()" class="border-2 border-dashed border-binance-border hover:border-binance-yellow p-4 rounded-xl text-center cursor-pointer bg-binance-black/40 transition">
+                                    <div id="imagePreviewContainer" class="hidden space-y-2">
+                                        <img id="imagePreview" src="" class="max-h-28 mx-auto rounded border border-binance-border object-cover" alt="Preview">
+                                        <span class="text-[10px] text-binance-yellow block">Click to replace image</span>
+                                    </div>
+                                    <div id="imagePlaceholder" class="space-y-1">
+                                        <i class="fa-solid fa-cloud-arrow-up text-xl text-binance-muted"></i>
+                                        <p class="text-xs text-binance-muted">Upload chart screenshot proof</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="gold-btn w-full py-3 rounded-xl font-bold text-sm tracking-wider uppercase mt-4">
+                            <i class="fa-solid fa-floppy-disk mr-2"></i> Save Trade Log
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- 3. TRADE HISTORY TAB -->
+            <section id="tab-history" class="hidden space-y-6">
+                <!-- History Top Toolbar -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-binance-text">Trade History & Journal Log</h2>
+                        <p class="text-xs text-binance-muted">View trade journal, change status (RUNNING, TP HIT, SL HIT, BREAKEVEN), share, and write lesson feedback notes.</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <!-- View Mode Toggle -->
+                        <button onclick="toggleHistoryViewMode()" id="historyViewModeBtn" class="bg-binance-card hover:bg-binance-border text-binance-text border border-binance-border px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells"></i> <span id="viewModeText">Full View</span>
+                        </button>
+                        <!-- Reset Journal Button -->
+                        <button onclick="openResetModal()" class="bg-binance-red/10 text-binance-red hover:bg-binance-red/20 border border-binance-red/30 px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i> Reset Journal
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Table Container -->
+                <div class="bg-binance-card rounded-2xl border border-binance-border overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-binance-text">
+                            <thead class="bg-binance-black/80 text-binance-muted font-mono uppercase text-[11px] border-b border-binance-border">
+                                <tr>
+                                    <th class="p-4">Date / Pair</th>
+                                    <th class="p-4">Type</th>
+                                    <th class="p-4">Entry / Targets</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Psychology</th>
+                                    <th class="p-4">Calculated P&L</th>
+                                    <th class="p-4">Lesson Note (Feedback)</th>
+                                    <th class="p-4 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradeHistoryTableBody" class="divide-y divide-binance-border/60">
+                                <!-- Dynamic Trades Injected Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noTradesNotice" class="hidden p-8 text-center text-binance-muted text-xs space-y-2">
+                        <i class="fa-solid fa-folder-open text-3xl text-binance-border"></i>
+                        <p>No trade logs found. Head over to Trade Journal to create your first entry!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. LEARNING MATERIALS TAB -->
+            <section id="tab-learning" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-binance-text">Learning Materials Academy</h2>
+                    <p class="text-xs text-binance-muted">Upload PDFs, connect Google Drive repositories, and review strategy video recordings.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Upload PDF -->
+                    <div class="bg-binance-card p-6 rounded-2xl border border-binance-border space-y-4">
+                        <div class="flex items-center justify-between border-b border-binance-border pb-3">
+                            <h3 class="font-bold text-binance-text text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-file-pdf text-binance-yellow"></i> Upload PDF Guides
+                            </h3>
+                            <span id="pdfCount" class="text-[10px] font-mono bg-binance-border px-2 py-0.5 rounded text-binance-yellow">0 Guides</span>
+                        </div>
+                        
+                        <form onsubmit="addPdfMaterial(event)" class="space-y-2">
+                            <input type="text" id="pdfTitle" required placeholder="Guide Title (e.g. SMC Playbook)" class="w-full bg-binance-black border border-binance-border px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-binance-yellow">
+                            <input type="url" id="pdfUrl" required placeholder="PDF URL / Link" class="w-full bg-binance-black border border-binance-border px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-binance-yellow">
+                            <button type="submit" class="gold-btn w-full py-2 rounded-lg text-xs font-bold">+ Upload PDF</button>
+                        </form>
+
+                        <div id="pdfList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                            <!-- Dynamic PDF list -->
+                        </div>
+                    </div>
+
+                    <!-- Google Drive -->
+                    <div class="bg-binance-card p-6 rounded-2xl border border-binance-border space-y-4">
+                        <div class="flex items-center justify-between border-b border-binance-border pb-3">
+                            <h3 class="font-bold text-binance-text text-sm flex items-center gap-2">
+                                <i class="fa-brands fa-google-drive text-binance-yellow"></i> Google Drive Repos
+                            </h3>
+                            <span id="driveCount" class="text-[10px] font-mono bg-binance-border px-2 py-0.5 rounded text-binance-yellow">0 Folders</span>
+                        </div>
+
+                        <form onsubmit="addDriveLink(event)" class="space-y-2">
+                            <input type="text" id="driveTitle" required placeholder="Folder Name (e.g. Backtest Vault)" class="w-full bg-binance-black border border-binance-border px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-binance-yellow">
+                            <input type="url" id="driveUrl" required placeholder="Google Drive Link" class="w-full bg-binance-black border border-binance-border px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-binance-yellow">
+                            <button type="submit" class="gold-btn w-full py-2 rounded-lg text-xs font-bold">+ Add Drive Repo</button>
+                        </form>
+
+                        <div id="driveList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                            <!-- Dynamic Drive List -->
+                        </div>
+                    </div>
+
+                    <!-- Recordings -->
+                    <div class="bg-binance-card p-6 rounded-2xl border border-binance-border space-y-4">
+                        <div class="flex items-center justify-between border-b border-binance-border pb-3">
+                            <h3 class="font-bold text-binance-text text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-video text-binance-yellow"></i> Video Recordings
+                            </h3>
+                            <span id="videoCount" class="text-[10px] font-mono bg-binance-border px-2 py-0.5 rounded text-binance-yellow">0 Videos</span>
+                        </div>
+
+                        <form onsubmit="addVideoRecording(event)" class="space-y-2">
+                            <input type="text" id="videoTitle" required placeholder="Session Title (e.g. Live Breakdown)" class="w-full bg-binance-black border border-binance-border px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-binance-yellow">
+                            <input type="url" id="videoUrl" required placeholder="Video URL (YouTube/Loom)" class="w-full bg-binance-black border border-binance-border px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-binance-yellow">
+                            <button type="submit" class="gold-btn w-full py-2 rounded-lg text-xs font-bold">+ Add Recording</button>
+                        </form>
+
+                        <div id="videoList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                            <!-- Dynamic Video List -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. ACCOUNT SETTINGS TAB -->
+            <section id="tab-settings" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-binance-text">Account Settings</h2>
+                    <p class="text-xs text-binance-muted">Edit username, upload profile avatar, and sign in using Google account.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Identity & Avatar Editor -->
+                    <div class="bg-binance-card p-6 rounded-2xl border border-binance-border space-y-4">
+                        <h3 class="text-sm font-bold text-binance-text border-b border-binance-border pb-2">Edit Username & Profile Avatar</h3>
+                        
+                        <div class="flex items-center space-x-4">
+                            <img id="settingsAvatarPreview" src="https://placehold.co/100x100/181A20/F0B90B?text=VIP" class="w-16 h-16 rounded-full border-2 border-binance-yellow object-cover" alt="Avatar">
+                            <div>
+                                <input type="file" id="avatarFileInput" accept="image/*" onchange="uploadAvatarImage(event)" class="hidden">
+                                <button onclick="document.getElementById('avatarFileInput').click()" class="bg-binance-border hover:bg-binance-cardHover text-binance-text border border-binance-border px-3 py-1.5 rounded-lg text-xs font-medium">
+                                    Upload Profile Avatar
+                                </button>
+                                <p class="text-[10px] text-binance-muted mt-1">Recommended square JPG/PNG</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-2">
+                            <div>
+                                <label class="block text-xs font-medium text-binance-muted mb-1">Edit Username</label>
+                                <input type="text" id="settingsUsername" class="w-full bg-binance-black border border-binance-border px-3 py-2 rounded-xl text-xs text-binance-text focus:outline-none focus:border-binance-yellow">
+                            </div>
+                            <button onclick="saveProfileSettings()" class="gold-btn px-4 py-2 rounded-xl text-xs font-bold">
+                                Save Profile
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Google Authentication Control -->
+                    <div class="bg-binance-card p-6 rounded-2xl border border-binance-border space-y-4">
+                        <h3 class="text-sm font-bold text-binance-text border-b border-binance-border pb-2">Sign In Using Google Account</h3>
+                        
+                        <div class="bg-binance-black p-4 rounded-xl border border-binance-border space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fa-brands fa-google text-binance-yellow text-base"></i>
+                                    <span class="text-xs font-semibold text-binance-text">Google Account Authentication</span>
+                                </div>
+                                <span id="authBadge" class="text-[10px] bg-binance-green/20 text-binance-green border border-binance-green/30 px-2 py-0.5 rounded-full font-mono">Connected</span>
+                            </div>
+                            <p class="text-xs text-binance-muted">Currently signed in as <span id="settingsGoogleEmail" class="text-binance-text font-mono">google.user@crypto.com</span></p>
+                            <button onclick="toggleAuthModal()" class="w-full bg-binance-border hover:bg-binance-cardHover text-xs text-binance-text py-2 rounded-lg font-medium border border-binance-border">
+                                Toggle Google Sign-In Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODAL: EDIT STARTING CAPITAL / ACCOUNT AMOUNT -->
+    <div id="modalEditCapital" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-binance-card border border-binance-yellow/40 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-binance-text flex items-center gap-2">
+                <i class="fa-solid fa-wallet text-binance-yellow"></i> Edit Account Amount
+            </h3>
+            <p class="text-xs text-binance-muted">Updating account amount adjusts total account balance and overall P&L % calculations.</p>
+            <input type="number" id="inputStartingCapital" step="0.01" class="w-full bg-binance-black border border-binance-border px-3.5 py-2.5 rounded-xl text-sm font-mono text-binance-text focus:outline-none focus:border-binance-yellow">
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeEditCapitalModal()" class="flex-1 bg-binance-border text-binance-text py-2 rounded-xl text-xs font-semibold">Cancel</button>
+                <button onclick="saveStartingCapital()" class="flex-1 gold-btn py-2 rounded-xl text-xs font-bold">Save Amount</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DETAILED TRADE INSPECTION -->
+    <div id="modalTradeInspect" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-binance-card border border-binance-border rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-binance-border pb-3">
+                <div class="flex items-center space-x-3">
+                    <span id="modalTradeDirectionBadge" class="px-2.5 py-1 rounded text-xs font-mono font-bold">LONG</span>
+                    <h3 id="modalTradePairTitle" class="text-lg font-bold text-binance-text font-mono">BTC/USDT</h3>
+                </div>
+                <button onclick="closeInspectModal()" class="text-binance-muted hover:text-binance-text text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Inspect Trade Grid Body -->
+            <div id="inspectModalBody" class="space-y-4 text-xs">
+                <!-- Dynamic inspection content inserted via JavaScript -->
+            </div>
+
+            <div class="pt-3 border-t border-binance-border flex justify-end">
+                <button onclick="closeInspectModal()" class="gold-btn px-5 py-2 rounded-xl text-xs font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VERIFIED SHAREABLE TRADE CARD -->
+    <div id="modalShareTrade" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-binance-card border border-binance-yellow/40 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-binance-border pb-2">
+                <h3 class="text-sm font-bold text-binance-text flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes text-binance-yellow"></i> Share Trade to Other Users
+                </h3>
+                <button onclick="closeShareModal()" class="text-binance-muted hover:text-binance-text text-base"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Share Card Canvas-Style Box -->
+            <div id="shareableCardBox" class="gold-glass p-5 rounded-2xl border-2 border-binance-yellow/30 space-y-4 text-binance-text relative overflow-hidden">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold tracking-wider gold-gradient-text">AUREUS VERIFIED TRADE</span>
+                    <span id="shareCardDate" class="text-[10px] font-mono text-binance-muted">2026-10-13</span>
+                </div>
+                <div class="flex justify-between items-end border-b border-binance-border/60 pb-3">
+                    <div>
+                        <span id="shareCardPair" class="text-xl font-extrabold font-mono text-binance-text">BTC/USDT</span>
+                        <span id="shareCardDirection" class="text-xs font-mono font-bold block text-binance-green">LONG 20x</span>
+                    </div>
+                    <div class="text-right">
+                        <span id="shareCardPnL" class="text-2xl font-black font-mono text-binance-green">+$450.00</span>
+                        <span id="shareCardROE" class="text-xs font-mono text-binance-green block">(+90.00% ROE)</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[11px] font-mono text-binance-muted">
+                    <div>Entry: <span id="shareCardEntry" class="text-binance-text font-semibold">$65,000</span></div>
+                    <div>Exit: <span id="shareCardExit" class="text-binance-text font-semibold">$68,000</span></div>
+                </div>
+                <div class="pt-2 text-[10px] font-mono text-binance-muted text-center border-t border-binance-border/40">
+                    Logged with AUREUS Crypto Journal • MEXC: 80122749
+                </div>
+            </div>
+
+            <!-- Snippet Copy Button -->
+            <button onclick="copyShareSnippet()" class="gold-btn w-full py-2.5 rounded-xl font-bold text-xs">
+                <i class="fa-regular fa-copy mr-1.5"></i> Copy Summary Snippet
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: RESET JOURNAL CONFIRMATION (YES OR NO) -->
+    <div id="modalResetJournal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-binance-card border border-binance-red/40 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-full bg-binance-red/10 border border-binance-red/30 flex items-center justify-center mx-auto text-binance-red text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-base font-bold text-binance-text">Reset Journal?</h3>
+            <p class="text-xs text-binance-muted">Are you sure you want to purge all logged trades and reset statistics? This action cannot be undone.</p>
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closeResetModal()" class="flex-1 bg-binance-border text-binance-text py-2.5 rounded-xl text-xs font-semibold">No</button>
+                <button onclick="confirmResetJournal()" class="flex-1 bg-binance-red hover:bg-red-600 text-white py-2.5 rounded-xl text-xs font-bold">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        /* APP INITIAL STATE PERSISTENCE KEYS */
+        const STORAGE_KEY_TRADES = 'aureus_trades_v2';
+        const STORAGE_KEY_CAPITAL = 'aureus_capital_v2';
+        const STORAGE_KEY_RULES = 'aureus_rules_v2';
+        const STORAGE_KEY_LEARNING = 'aureus_learning_v2';
+        const STORAGE_KEY_USER = 'aureus_user_v2';
+
+        /* Default Initial State Data */
+        let startingCapital = parseFloat(localStorage.getItem(STORAGE_KEY_CAPITAL)) || 10000;
+        let isFullViewMode = false;
+        let uploadedImageBase64 = '';
+        let equityChartInstance = null;
+
+        let userProfile = JSON.parse(localStorage.getItem(STORAGE_KEY_USER)) || {
+            username: 'Pro Trader',
+            email: 'google.user@crypto.com',
+            avatar: 'https://placehold.co/100x100/181A20/F0B90B?text=VIP',
+            isSignedIn: true
+        };
+
+        let tradingRules = JSON.parse(localStorage.getItem(STORAGE_KEY_RULES)) || [
+            { id: 1, text: "Never risk more than 2% per trade", completed: true },
+            { id: 2, text: "Wait for 4H candle closure confirmation", completed: false },
+            { id: 3, text: "Always set Stop Loss before entering position", completed: true }
+        ];
+
+        let learningVault = JSON.parse(localStorage.getItem(STORAGE_KEY_LEARNING)) || {
+            pdfs: [{ title: 'SMC Price Action Playbook', url: '#' }],
+            drives: [{ title: 'Chart Screenshots 2026', url: '#' }],
+            videos: [{ title: 'Risk Management Masterclass', url: '#' }]
+        };
+
+        let tradesList = JSON.parse(localStorage.getItem(STORAGE_KEY_TRADES)) || [
+            {
+                id: 'TRD-101',
+                pair: 'BTC/USDT',
+                direction: 'LONG',
+                margin: 500,
+                leverage: 20,
+                entry: 64000,
+                tp: 67200,
+                sl: 62400,
+                status: 'TP HIT',
+                exitPrice: 67200,
+                pnl: 500,
+                roe: 100,
+                psychology: 'Disciplined',
+                notes: 'Broke out of falling wedge on high volume.',
+                lesson: 'Patience paid off on retest.',
+                checklist: ['Trendline / Key Level Break', 'High Volume Confirmation'],
+                image: '',
+                date: '2026-10-10'
+            },
+            {
+                id: 'TRD-102',
+                pair: 'ETH/USDT',
+                direction: 'SHORT',
+                margin: 300,
+                leverage: 10,
+                entry: 3500,
+                tp: 3300,
+                sl: 3600,
+                status: 'SL HIT',
+                exitPrice: 3600,
+                pnl: -85.71,
+                roe: -28.57,
+                psychology: 'FOMO',
+                notes: 'Shorted at major support without candle close.',
+                lesson: 'Do not chase red candles.',
+                checklist: ['RSI / MACD Divergence'],
+                image: '',
+                date: '2026-10-12'
+            }
+        ];
+
+        /* --- APPLICATION INITIALIZATION --- */
+        window.addEventListener('DOMContentLoaded', () => {
+            initMobileMenu();
+            renderProfileInfo();
+            renderRules();
+            renderLearningMaterials();
+            initEquityChart();
+            calculateLivePnL();
+            recalculateAllStats();
+            renderTradeHistory();
+        });
+
+        /* --- MOBILE SIDEBAR DRAWER TOGGLE --- */
+        function initMobileMenu() {
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+        }
+
+        /* --- NAVIGATION TAB SWITCHING --- */
+        function switchTab(tabId) {
+            const tabs = ['dashboard', 'journal', 'history', 'learning', 'settings'];
+            tabs.forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (navBtn) {
+                    navBtn.className = "nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-binance-muted hover:text-binance-text hover:bg-binance-border/30 transition-all";
+                }
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = "nav-item w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all text-binance-yellow bg-binance-border/50 border-l-4 border-binance-yellow";
+            }
+
+            // Close mobile menu if open
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+        }
+
+        /* --- USER PROFILE & GOOGLE AUTH SIMULATION --- */
+        function renderProfileInfo() {
+            document.getElementById('sidebarUsername').innerText = userProfile.username;
+            document.getElementById('sidebarEmail').innerText = userProfile.email;
+            document.getElementById('sidebarAvatar').src = userProfile.avatar;
+            document.getElementById('settingsAvatarPreview').src = userProfile.avatar;
+            document.getElementById('settingsUsername').value = userProfile.username;
+            document.getElementById('settingsGoogleEmail').innerText = userProfile.email;
+            
+            const authStatus = document.getElementById('headerAuthStatus');
+            const authBadge = document.getElementById('authBadge');
+            if (userProfile.isSignedIn) {
+                authStatus.innerText = `Signed In: ${userProfile.username}`;
+                authBadge.innerText = "Connected";
+                authBadge.className = "text-[10px] bg-binance-green/20 text-binance-green border border-binance-green/30 px-2 py-0.5 rounded-full font-mono";
+            } else {
+                authStatus.innerText = "Sign In with Google";
+                authBadge.innerText = "Disconnected";
+                authBadge.className = "text-[10px] bg-binance-red/20 text-binance-red border border-binance-red/30 px-2 py-0.5 rounded-full font-mono";
+            }
+        }
+
+        function toggleAuthModal() {
+            userProfile.isSignedIn = !userProfile.isSignedIn;
+            if(!userProfile.isSignedIn) {
+                userProfile.username = 'Guest Trader';
+            } else {
+                userProfile.username = 'Pro Trader';
+            }
+            saveProfileSettings();
+        }
+
+        function saveProfileSettings() {
+            userProfile.username = document.getElementById('settingsUsername').value.trim() || userProfile.username;
+            localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(userProfile));
+            renderProfileInfo();
+        }
+
+        function uploadAvatarImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userProfile.avatar = e.target.result;
+                    saveProfileSettings();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        /* --- CAPITAL & RECALCULATION ENGINE --- */
+        function openEditCapitalModal() {
+            document.getElementById('inputStartingCapital').value = startingCapital;
+            document.getElementById('modalEditCapital').classList.remove('hidden');
+        }
+
+        function closeEditCapitalModal() {
+            document.getElementById('modalEditCapital').classList.add('hidden');
+        }
+
+        function saveStartingCapital() {
+            const val = parseFloat(document.getElementById('inputStartingCapital').value);
+            if (!isNaN(val) && val >= 0) {
+                startingCapital = val;
+                localStorage.setItem(STORAGE_KEY_CAPITAL, startingCapital);
+                recalculateAllStats();
+                closeEditCapitalModal();
+            }
+        }
+
+        function recalculateAllStats() {
+            let totalPnL = 0;
+            let dailyPnL = 0;
+            let weeklyPnL = 0;
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            tradesList.forEach(t => {
+                totalPnL += t.pnl;
+                if (t.date === todayStr) {
+                    dailyPnL += t.pnl;
+                }
+                weeklyPnL += t.pnl;
+            });
+
+            const currentBalance = startingCapital + totalPnL;
+            const totalPnLPercent = startingCapital > 0 ? (totalPnL / startingCapital) * 100 : 0;
+
+            // Update UI elements
+            document.getElementById('dashStartingCapital').innerText = `$${startingCapital.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            document.getElementById('dashCurrentBalance').innerText = `$${currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            
+            const balChangeEl = document.getElementById('dashBalanceChange');
+            balChangeEl.innerText = `${totalPnLPercent >= 0 ? '+' : ''}${totalPnLPercent.toFixed(2)}% Net Profit`;
+            balChangeEl.className = `text-[11px] font-mono mt-1 ${totalPnLPercent >= 0 ? 'text-binance-green' : 'text-binance-red'}`;
+
+            const totalPnLEl = document.getElementById('dashTotalPnL');
+            totalPnLEl.innerText = `${totalPnL >= 0 ? '+' : ''}$${totalPnL.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+            totalPnLEl.className = `text-2xl font-bold font-mono ${totalPnL >= 0 ? 'text-binance-green' : 'text-binance-red'}`;
+
+            const totalPnLPercentEl = document.getElementById('dashTotalPnLPercent');
+            totalPnLPercentEl.innerText = `(${totalPnLPercent >= 0 ? '+' : ''}${totalPnLPercent.toFixed(2)}%)`;
+            totalPnLPercentEl.className = `text-[11px] font-mono mt-1 ${totalPnLPercent >= 0 ? 'text-binance-green' : 'text-binance-red'}`;
+
+            const dailyEl = document.getElementById('dashDailyPnL');
+            dailyEl.innerText = `${dailyPnL >= 0 ? '+' : ''}$${dailyPnL.toFixed(2)}`;
+            dailyEl.className = `text-sm font-bold font-mono ${dailyPnL >= 0 ? 'text-binance-green' : 'text-binance-red'}`;
+
+            const weeklyEl = document.getElementById('dashWeeklyPnL');
+            weeklyEl.innerText = `${weeklyPnL >= 0 ? '+' : ''}$${weeklyPnL.toFixed(2)}`;
+            weeklyEl.className = `text-sm font-bold font-mono ${weeklyPnL >= 0 ? 'text-binance-green' : 'text-binance-red'}`;
+
+            updateEquityChartData();
+        }
+
+        /* --- CHART.JS EQUITY GROWTH CHART --- */
+        function initEquityChart() {
+            const ctx = document.getElementById('equityChart').getContext('2d');
+            equityChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Start'],
+                    datasets: [{
+                        label: 'Account Equity ($)',
+                        data: [startingCapital],
+                        borderColor: '#F0B90B',
+                        backgroundColor: 'rgba(240, 185, 11, 0.08)',
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#F0B90B'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: '#2B313A' },
+                            ticks: { color: '#848E9C', font: { family: 'JetBrains Mono', size: 10 } }
+                        },
+                        y: {
+                            grid: { color: '#2B313A' },
+                            ticks: { color: '#848E9C', font: { family: 'JetBrains Mono', size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function updateEquityChartData() {
+            if (!equityChartInstance) return;
+            let currentEquity = startingCapital;
+            const labels = ['Start'];
+            const data = [startingCapital];
+
+            tradesList.slice().reverse().forEach((trade, idx) => {
+                currentEquity += trade.pnl;
+                labels.push(`#${idx + 1} ${trade.pair}`);
+                data.push(currentEquity);
+            });
+
+            equityChartInstance.data.labels = labels;
+            equityChartInstance.data.datasets[0].data = data;
+            equityChartInstance.update();
+        }
+
+        /* --- TRADING RULES CHECKLIST ENGINE --- */
+        function renderRules() {
+            const container = document.getElementById('rulesList');
+            container.innerHTML = '';
+            let completedCount = 0;
+
+            tradingRules.forEach(rule => {
+                if (rule.completed) completedCount++;
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-2 rounded-lg bg-binance-black border border-binance-border/60 text-xs";
+                item.innerHTML = `
+                    <label class="flex items-center space-x-2.5 cursor-pointer flex-1">
+                        <input type="checkbox" ${rule.completed ? 'checked' : ''} onchange="toggleRule(${rule.id})" class="rounded bg-binance-border text-binance-yellow focus:ring-0">
+                        <span class="${rule.completed ? 'line-through text-binance-muted' : 'text-binance-text'}">${rule.text}</span>
+                    </label>
+                    <button onclick="deleteRule(${rule.id})" class="text-binance-muted hover:text-binance-red px-1"><i class="fa-solid fa-xmark"></i></button>
+                `;
+                container.appendChild(item);
+            });
+
+            document.getElementById('rulesCompletedCount').innerText = `${completedCount}/${tradingRules.length}`;
+            localStorage.setItem(STORAGE_KEY_RULES, JSON.stringify(tradingRules));
+        }
+
+        function addTradingRule(event) {
+            event.preventDefault();
+            const input = document.getElementById('newRuleInput');
+            const text = input.value.trim();
+            if (text) {
+                tradingRules.push({ id: Date.now(), text, completed: false });
+                input.value = '';
+                renderRules();
+            }
+        }
+
+        function toggleRule(id) {
+            const rule = tradingRules.find(r => r.id === id);
+            if (rule) {
+                rule.completed = !rule.completed;
+                renderRules();
+            }
+        }
+
+        function deleteRule(id) {
+            tradingRules = tradingRules.filter(r => r.id !== id);
+            renderRules();
+        }
+
+        /* --- TRADE JOURNAL INPUT CALCULATIONS --- */
+        function updateLeverage(val) {
+            document.getElementById('tradeLeverage').value = val;
+            document.getElementById('leverageDisplay').innerText = `${val}x`;
+            calculateLivePnL();
+        }
+
+        function previewTradeImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageBase64 = e.target.result;
+                    document.getElementById('imagePreview').src = uploadedImageBase64;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                    document.getElementById('imagePlaceholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function calculateLivePnL() {
+            const margin = parseFloat(document.getElementById('tradeMargin').value) || 0;
+            const leverage = parseFloat(document.getElementById('tradeLeverage').value) || 1;
+            const entry = parseFloat(document.getElementById('tradeEntry').value) || 0;
+            const tp = parseFloat(document.getElementById('tradeTP').value) || 0;
+            const sl = parseFloat(document.getElementById('tradeSL').value) || 0;
+            const direction = document.getElementById('tradeDirection').value;
+
+            if (margin > 0 && entry > 0) {
+                const positionSize = margin * leverage;
+                let tpPnL = 0, slPnL = 0;
+
+                if (direction === 'LONG') {
+                    tpPnL = tp > 0 ? ((tp - entry) / entry) * positionSize : 0;
+                    slPnL = sl > 0 ? ((sl - entry) / entry) * positionSize : 0;
+                } else {
+                    tpPnL = tp > 0 ? ((entry - tp) / entry) * positionSize : 0;
+                    slPnL = sl > 0 ? ((entry - sl) / entry) * positionSize : 0;
+                }
+
+                const tpRoe = (tpPnL / margin) * 100;
+                const slRoe = (slPnL / margin) * 100;
+
+                document.getElementById('calcTpReturn').innerText = `+$${tpPnL.toFixed(2)} (+${tpRoe.toFixed(2)}% ROE)`;
+                document.getElementById('calcSlReturn').innerText = `${slPnL >= 0 ? '+' : ''}$${slPnL.toFixed(2)} (${slRoe.toFixed(2)}% ROE)`;
+            }
+        }
+
+        function saveTradeLog(event) {
+            event.preventDefault();
+            const pair = document.getElementById('tradePair').value.toUpperCase().trim();
+            const direction = document.getElementById('tradeDirection').value;
+            const margin = parseFloat(document.getElementById('tradeMargin').value);
+            const leverage = parseInt(document.getElementById('tradeLeverage').value);
+            const entry = parseFloat(document.getElementById('tradeEntry').value);
+            const tp = parseFloat(document.getElementById('tradeTP').value);
+            const sl = parseFloat(document.getElementById('tradeSL').value);
+            const psychology = document.getElementById('tradePsychology').value;
+            const notes = document.getElementById('tradeNotes').value.trim();
+
+            const checkedBoxes = document.querySelectorAll('.strategy-check:checked');
+            const checklist = Array.from(checkedBoxes).map(cb => cb.value);
+
+            const newTrade = {
+                id: `TRD-${Math.floor(1000 + Math.random() * 9000)}`,
+                pair,
+                direction,
+                margin,
+                leverage,
+                entry,
+                tp,
+                sl,
+                status: 'RUNNING',
+                exitPrice: entry,
+                pnl: 0,
+                roe: 0,
+                psychology,
+                notes,
+                lesson: '',
+                checklist,
+                image: uploadedImageBase64,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            tradesList.unshift(newTrade);
+            localStorage.setItem(STORAGE_KEY_TRADES, JSON.stringify(tradesList));
+
+            // Reset form
+            document.getElementById('tradeForm').reset();
+            uploadedImageBase64 = '';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            document.getElementById('imagePlaceholder').classList.remove('hidden');
+
+            recalculateAllStats();
+            renderTradeHistory();
+            switchTab('history');
+        }
+
+        /* --- TRADE HISTORY ENGINE & DYNAMIC OUTCOME SYNC --- */
+        function toggleHistoryViewMode() {
+            isFullViewMode = !isFullViewMode;
+            document.getElementById('viewModeText').innerText = isFullViewMode ? "Compact View" : "Full View";
+            renderTradeHistory();
+        }
+
+        function renderTradeHistory() {
+            const tbody = document.getElementById('tradeHistoryTableBody');
+            tbody.innerHTML = '';
+
+            if (tradesList.length === 0) {
+                document.getElementById('noTradesNotice').classList.remove('hidden');
+                return;
+            } else {
+                document.getElementById('noTradesNotice').classList.add('hidden');
+            }
+
+            tradesList.forEach((trade, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-binance-cardHover/60 transition";
+
+                const isLong = trade.direction === 'LONG';
+                const pnlClass = trade.pnl > 0 ? 'text-binance-green' : (trade.pnl < 0 ? 'text-binance-red' : 'text-binance-muted');
+
+                tr.innerHTML = `
+                    <td class="p-4">
+                        <div class="font-bold text-binance-text font-mono">${trade.pair}</div>
+                        <div class="text-[10px] text-binance-muted font-mono">${trade.date} • ${trade.id}</div>
+                    </td>
+                    <td class="p-4">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${isLong ? 'bg-binance-green/10 text-binance-green border border-binance-green/20' : 'bg-binance-red/10 text-binance-red border border-binance-red/20'}">
+                            ${trade.direction} ${trade.leverage}x
+                        </span>
+                    </td>
+                    <td class="p-4 font-mono text-[11px]">
+                        <div>Ent: $${trade.entry.toLocaleString()}</div>
+                        <div class="text-binance-muted">TP: $${trade.tp.toLocaleString()} | SL: $${trade.sl.toLocaleString()}</div>
+                    </td>
+                    <td class="p-4">
+                        <select onchange="updateTradeStatus('${trade.id}', this.value)" class="bg-binance-black border border-binance-border text-xs rounded px-2 py-1 focus:outline-none font-bold text-binance-yellow">
+                            <option value="RUNNING" ${trade.status === 'RUNNING' ? 'selected' : ''}>⏳ RUNNING</option>
+                            <option value="TP HIT" ${trade.status === 'TP HIT' ? 'selected' : ''}>🎯 TP HIT</option>
+                            <option value="SL HIT" ${trade.status === 'SL HIT' ? 'selected' : ''}>🛑 SL HIT</option>
+                            <option value="BREAKEVEN" ${trade.status === 'BREAKEVEN' ? 'selected' : ''}>⚖️ BREAKEVEN</option>
+                        </select>
+                    </td>
+                    <td class="p-4">
+                        <select onchange="updateTradePsychology('${trade.id}', this.value)" class="bg-binance-black border border-binance-border text-[11px] rounded px-2 py-1 text-binance-text">
+                            <option value="Disciplined" ${trade.psychology === 'Disciplined' ? 'selected' : ''}>🧠 Disciplined</option>
+                            <option value="Followed Plan" ${trade.psychology === 'Followed Plan' ? 'selected' : ''}>📋 Followed Plan</option>
+                            <option value="Patient" ${trade.psychology === 'Patient' ? 'selected' : ''}>⏳ Patient</option>
+                            <option value="FOMO" ${trade.psychology === 'FOMO' ? 'selected' : ''}>🔥 FOMO</option>
+                            <option value="Revenge Trade" ${trade.psychology === 'Revenge Trade' ? 'selected' : ''}>😡 Revenge</option>
+                            <option value="Greedy" ${trade.psychology === 'Greedy' ? 'selected' : ''}>🤑 Greedy</option>
+                            <option value="Fearful" ${trade.psychology === 'Fearful' ? 'selected' : ''}>😨 Fearful</option>
+                            <option value="Early Exit" ${trade.psychology === 'Early Exit' ? 'selected' : ''}>⚡ Early Exit</option>
+                        </select>
+                    </td>
+                    <td class="p-4 font-mono ${pnlClass} font-bold">
+                        <div>${trade.pnl >= 0 ? '+' : ''}$${trade.pnl.toFixed(2)}</div>
+                        <div class="text-[10px]">(${trade.roe >= 0 ? '+' : ''}${trade.roe.toFixed(2)}%)</div>
+                    </td>
+                    <td class="p-4 min-w-[180px]">
+                        <input type="text" value="${trade.lesson || ''}" placeholder="Write text for feedback..." onchange="updateTradeLesson('${trade.id}', this.value)" class="w-full bg-binance-black border border-binance-border/80 text-[11px] px-2 py-1 rounded text-binance-text focus:border-binance-yellow focus:outline-none">
+                    </td>
+                    <td class="p-4 text-center">
+                        <div class="flex items-center justify-center space-x-1.5">
+                            <button onclick="inspectTrade('${trade.id}')" title="View Journal" class="p-1.5 hover:bg-binance-border rounded text-binance-muted hover:text-binance-yellow"><i class="fa-solid fa-eye"></i></button>
+                            <button onclick="shareTradeCard('${trade.id}')" title="Share to Other Users" class="p-1.5 hover:bg-binance-border rounded text-binance-muted hover:text-binance-yellow"><i class="fa-solid fa-share-nodes"></i></button>
+                            <button onclick="deleteTrade('${trade.id}')" title="Delete Log" class="p-1.5 hover:bg-binance-border rounded text-binance-muted hover:text-binance-red"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                // Extended Full View Mode Detail Drawer Row
+                if (isFullViewMode) {
+                    const fullViewTr = document.createElement('tr');
+                    fullViewTr.className = "bg-binance-black/50 border-b border-binance-border/80";
+                    fullViewTr.innerHTML = `
+                        <td colspan="8" class="p-4 space-y-3">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                <div>
+                                    <span class="text-[10px] text-binance-muted font-mono uppercase block mb-1">Checklist Confluences</span>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${trade.checklist && trade.checklist.length > 0 ? trade.checklist.map(c => `<span class="bg-binance-border text-binance-yellow px-2 py-0.5 rounded text-[10px]">${c}</span>`).join('') : '<span class="text-binance-muted">No criteria logged</span>'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-binance-muted font-mono uppercase block mb-1">Notes / Strategy</span>
+                                    <p class="text-binance-text italic bg-binance-card p-2 rounded border border-binance-border/50">${trade.notes || 'No notes provided.'}</p>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-binance-muted font-mono uppercase block mb-1">Uploaded Image Proof</span>
+                                    ${trade.image ? `<img src="${trade.image}" class="h-16 rounded border border-binance-border object-cover cursor-pointer" onclick="inspectTrade('${trade.id}')" alt="Proof">` : '<span class="text-binance-muted">No image uploaded</span>'}
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(fullViewTr);
+                }
+            });
+        }
+
+        /* DYNAMIC P&L RECALCULATION ON STATUS CHANGE */
+        function updateTradeStatus(id, newStatus) {
+            const trade = tradesList.find(t => t.id === id);
+            if (trade) {
+                trade.status = newStatus;
+                const positionSize = trade.margin * trade.leverage;
+
+                if (newStatus === 'TP HIT') {
+                    trade.exitPrice = trade.tp;
+                } else if (newStatus === 'SL HIT') {
+                    trade.exitPrice = trade.sl;
+                } else if (newStatus === 'BREAKEVEN') {
+                    trade.exitPrice = trade.entry;
+                } else {
+                    trade.exitPrice = trade.entry;
+                }
+
+                if (trade.direction === 'LONG') {
+                    trade.pnl = ((trade.exitPrice - trade.entry) / trade.entry) * positionSize;
+                } else {
+                    trade.pnl = ((trade.entry - trade.exitPrice) / trade.entry) * positionSize;
+                }
+
+                trade.roe = (trade.pnl / trade.margin) * 100;
+
+                localStorage.setItem(STORAGE_KEY_TRADES, JSON.stringify(tradesList));
+                recalculateAllStats();
+                renderTradeHistory();
+            }
+        }
+
+        function updateTradePsychology(id, val) {
+            const trade = tradesList.find(t => t.id === id);
+            if (trade) {
+                trade.psychology = val;
+                localStorage.setItem(STORAGE_KEY_TRADES, JSON.stringify(tradesList));
+            }
+        }
+
+        function updateTradeLesson(id, val) {
+            const trade = tradesList.find(t => t.id === id);
+            if (trade) {
+                trade.lesson = val;
+                localStorage.setItem(STORAGE_KEY_TRADES, JSON.stringify(tradesList));
+            }
+        }
+
+        function deleteTrade(id) {
+            tradesList = tradesList.filter(t => t.id !== id);
+            localStorage.setItem(STORAGE_KEY_TRADES, JSON.stringify(tradesList));
+            recalculateAllStats();
+            renderTradeHistory();
+        }
+
+        /* --- TRADE INSPECTION & SHARE MODALS --- */
+        function inspectTrade(id) {
+            const trade = tradesList.find(t => t.id === id);
+            if (!trade) return;
+
+            document.getElementById('modalTradePairTitle').innerText = `${trade.pair} (${trade.leverage}x)`;
+            const badge = document.getElementById('modalTradeDirectionBadge');
+            badge.innerText = trade.direction;
+            badge.className = `px-2.5 py-1 rounded text-xs font-mono font-bold ${trade.direction === 'LONG' ? 'bg-binance-green/20 text-binance-green' : 'bg-binance-red/20 text-binance-red'}`;
+
+            const modalBody = document.getElementById('inspectModalBody');
+            modalBody.innerHTML = `
+                <div class="grid grid-cols-2 gap-3 bg-binance-black p-3.5 rounded-xl border border-binance-border font-mono">
+                    <div>Entry Price: <span class="text-binance-text">$${trade.entry.toLocaleString()}</span></div>
+                    <div>Exit Price: <span class="text-binance-text">$${trade.exitPrice.toLocaleString()}</span></div>
+                    <div>Margin / Amount: <span class="text-binance-text">$${trade.margin}</span></div>
+                    <div>Calculated P&L: <span class="${trade.pnl >= 0 ? 'text-binance-green' : 'text-binance-red'} font-bold">$${trade.pnl.toFixed(2)} (${trade.roe.toFixed(2)}%)</span></div>
+                </div>
+                <div>
+                    <span class="text-binance-muted font-mono uppercase text-[10px] block mb-1">Trading Psychology</span>
+                    <span class="bg-binance-border px-2 py-1 rounded text-binance-yellow font-medium">${trade.psychology}</span>
+                </div>
+                <div>
+                    <span class="text-binance-muted font-mono uppercase text-[10px] block mb-1">Notes / Strategy</span>
+                    <p class="bg-binance-black p-3 rounded-xl border border-binance-border/60">${trade.notes || 'No notes logged.'}</p>
+                </div>
+                <div>
+                    <span class="text-binance-muted font-mono uppercase text-[10px] block mb-1">Lesson Note (Feedback)</span>
+                    <p class="bg-binance-black p-3 rounded-xl border border-binance-border/60 text-binance-yellow">${trade.lesson || 'No lesson feedback provided.'}</p>
+                </div>
+                ${trade.image ? `
+                <div>
+                    <span class="text-binance-muted font-mono uppercase text-[10px] block mb-1">Uploaded Image Proof</span>
+                    <img src="${trade.image}" class="w-full rounded-xl border border-binance-border max-h-64 object-cover">
+                </div>` : ''}
+            `;
+
+            document.getElementById('modalTradeInspect').classList.remove('hidden');
+        }
+
+        function closeInspectModal() {
+            document.getElementById('modalTradeInspect').classList.add('hidden');
+        }
+
+        function shareTradeCard(id) {
+            const trade = tradesList.find(t => t.id === id);
+            if (!trade) return;
+
+            document.getElementById('shareCardPair').innerText = trade.pair;
+            document.getElementById('shareCardDate').innerText = trade.date;
+            
+            const dirEl = document.getElementById('shareCardDirection');
+            dirEl.innerText = `${trade.direction} ${trade.leverage}x`;
+            dirEl.className = `text-xs font-mono font-bold block ${trade.direction === 'LONG' ? 'text-binance-green' : 'text-binance-red'}`;
+
+            const pnlEl = document.getElementById('shareCardPnL');
+            pnlEl.innerText = `${trade.pnl >= 0 ? '+' : ''}$${trade.pnl.toFixed(2)}`;
+            pnlEl.className = `text-2xl font-black font-mono ${trade.pnl >= 0 ? 'text-binance-green' : 'text-binance-red'}`;
+
+            const roeEl = document.getElementById('shareCardROE');
+            roeEl.innerText = `(${trade.roe >= 0 ? '+' : ''}${trade.roe.toFixed(2)}% ROE)`;
+            roeEl.className = `text-xs font-mono block ${trade.roe >= 0 ? 'text-binance-green' : 'text-binance-red'}`;
+
+            document.getElementById('shareCardEntry').innerText = `$${trade.entry.toLocaleString()}`;
+            document.getElementById('shareCardExit').innerText = `$${trade.exitPrice.toLocaleString()}`;
+
+            document.getElementById('modalShareTrade').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('modalShareTrade').classList.add('hidden');
+        }
+
+        function copyShareSnippet() {
+            const pair = document.getElementById('shareCardPair').innerText;
+            const pnl = document.getElementById('shareCardPnL').innerText;
+            const roe = document.getElementById('shareCardROE').innerText;
+            const snippet = `🏆 AUREUS Trade Result: ${pair} | P&L: ${pnl} ${roe} | Tracked with AUREUS Pro Journal`;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = snippet;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert("Shared trade summary snippet copied to clipboard!");
+        }
+
+        /* --- RESET JOURNAL CONFIRMATION (YES OR NO) --- */
+        function openResetModal() {
+            document.getElementById('modalResetJournal').classList.remove('hidden');
+        }
+
+        function closeResetModal() {
+            document.getElementById('modalResetJournal').classList.add('hidden');
+        }
+
+        function confirmResetJournal() {
+            tradesList = [];
+            localStorage.setItem(STORAGE_KEY_TRADES, JSON.stringify(tradesList));
+            recalculateAllStats();
+            renderTradeHistory();
+            closeResetModal();
+        }
+
+        /* --- LEARNING MATERIALS ACADEMY ENGINE --- */
+        function renderLearningMaterials() {
+            // PDF List
+            const pdfContainer = document.getElementById('pdfList');
+            pdfContainer.innerHTML = '';
+            learningVault.pdfs.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = "flex justify-between items-center p-2 rounded-lg bg-binance-black border border-binance-border text-xs";
+                el.innerHTML = `
+                    <span class="truncate pr-2 font-medium">${item.title}</span>
+                    <a href="${item.url}" target="_blank" class="text-binance-yellow hover:underline flex items-center gap-1 font-mono text-[11px]"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open</a>
+                `;
+                pdfContainer.appendChild(el);
+            });
+            document.getElementById('pdfCount').innerText = `${learningVault.pdfs.length} Guides`;
+
+            // Drive List
+            const driveContainer = document.getElementById('driveList');
+            driveContainer.innerHTML = '';
+            learningVault.drives.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = "flex justify-between items-center p-2 rounded-lg bg-binance-black border border-binance-border text-xs";
+                el.innerHTML = `
+                    <span class="truncate pr-2 font-medium">${item.title}</span>
+                    <a href="${item.url}" target="_blank" class="text-binance-yellow hover:underline flex items-center gap-1 font-mono text-[11px]"><i class="fa-brands fa-google-drive"></i> Vault</a>
+                `;
+                driveContainer.appendChild(el);
+            });
+            document.getElementById('driveCount').innerText = `${learningVault.drives.length} Folders`;
+
+            // Video List
+            const videoContainer = document.getElementById('videoList');
+            videoContainer.innerHTML = '';
+            learningVault.videos.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = "flex justify-between items-center p-2 rounded-lg bg-binance-black border border-binance-border text-xs";
+                el.innerHTML = `
+                    <span class="truncate pr-2 font-medium">${item.title}</span>
+                    <a href="${item.url}" target="_blank" class="text-binance-yellow hover:underline flex items-center gap-1 font-mono text-[11px]"><i class="fa-solid fa-circle-play"></i> Watch</a>
+                `;
+                videoContainer.appendChild(el);
+            });
+            document.getElementById('videoCount').innerText = `${learningVault.videos.length} Videos`;
+
+            localStorage.setItem(STORAGE_KEY_LEARNING, JSON.stringify(learningVault));
+        }
+
+        function addPdfMaterial(e) {
+            e.preventDefault();
+            const title = document.getElementById('pdfTitle').value.trim();
+            const url = document.getElementById('pdfUrl').value.trim();
+            if (title && url) {
+                learningVault.pdfs.push({ title, url });
+                document.getElementById('pdfTitle').value = '';
+                document.getElementById('pdfUrl').value = '';
+                renderLearningMaterials();
+            }
+        }
+
+        function addDriveLink(e) {
+            e.preventDefault();
+            const title = document.getElementById('driveTitle').value.trim();
+            const url = document.getElementById('driveUrl').value.trim();
+            if (title && url) {
+                learningVault.drives.push({ title, url });
+                document.getElementById('driveTitle').value = '';
+                document.getElementById('driveUrl').value = '';
+                renderLearningMaterials();
+            }
+        }
+
+        function addVideoRecording(e) {
+            e.preventDefault();
+            const title = document.getElementById('videoTitle').value.trim();
+            const url = document.getElementById('videoUrl').value.trim();
+            if (title && url) {
+                learningVault.videos.push({ title, url });
+                document.getElementById('videoTitle').value = '';
+                document.getElementById('videoUrl').value = '';
+                renderLearningMaterials();
+            }
+        }
+
+        /* --- COPY UTILITIES --- */
+        function copyMexcUID() {
+            const uid = document.getElementById('mexcUid').innerText;
+            const temp = document.createElement('input');
+            temp.value = uid;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+
+            const btnText = document.getElementById('copyBtnText');
+            btnText.innerText = 'Copied!';
+            setTimeout(() => { btnText.innerText = 'Copy'; }, 2000);
+        }
+    </script>
+</body>
+</html>
